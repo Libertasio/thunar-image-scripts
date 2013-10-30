@@ -1,0 +1,103 @@
+#!/bin/bash
+# Licensed under the GNU General Public License Version 2
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+####################################################################################################
+## Authored by Anthony Nordquist of the SalineOS project. https://github.com/SalineOS  salinelinux@gmail.com 
+## Copyright 2013 Anthony Nordquist 
+
+## Load translations
+
+LanguageLess="$(echo "$LANG" | awk -F '.' '{print $1}')"
+
+if [ -f /etc/thunar-actions-images/Translations/$LanguageLess ]; then
+ . /etc/thunar-actions-images/Translations/$LanguageLess
+else
+ . /etc/custom-actions/Translations/en_US
+fi
+
+## Set arrays for yad options
+WinowIcon=( "--window-icon=image-x-generic" )
+Title=( '--title=B & W Image(s)' )
+Align=( "--text-align=center" )
+Icon=( "--image=image-x-generic" )
+
+## Allow saving files to a different folder
+
+CurrentDirectory="$(pwd)"
+
+Destination=$(yad "${Align[@]}" "${WindowIcon[@]}" "${Title[@]}" --file-selection --height="450" --width="500" --directory --text="$BWFILE\n" --button=$"gtk-quit:3" --button=$"gtk-ok:2")
+
+ret="$?"
+
+if [ "$ret" = "252" ]; then
+ exit
+elif [ "$ret" = "3" ]; then
+ exit
+elif [ "$Destination" = "" ]; then
+ yad  --window-icon="error" --image="error" "${Title[@]}" --text="$NODESTINATION\n" --button=$"gtk-quit:1"
+fi
+
+## Check to see if we are overwriting files and prompt the user
+
+echo "$CurrentDirectory"
+echo "$Destination"
+
+if [ "$CurrentDirectory" = "$Destination" ]; then
+ yad --image="emblem-important" --window-icon="emblem-important" "${Title[@]}" --wrap --width="275" --text="$BWAPPEND" --button=$"gtk-cancel:7" --button=$"$OVERWRITEFILES:3" --button=$"$APPENDBUTTON:5"
+ ret="$?"
+
+if [ "$ret" = "252" ]; then
+ exit
+elif [ "$ret" = "5" ]; then
+ Overwrite="False"
+elif [ "$ret" = "7" ];then
+ exit
+fi
+
+fi
+
+progressbar () {
+tail -f /usr/bin/blackwhite-image-ca |  yad "${Icon[@]}" "${WindowIcon[@]}" "${Title[@]}" --progress --no-buttons --pulsate --auto-close --text="$@"
+}
+
+progressbar "$BWPROGRESS\n" &
+
+for i in "$@"; do
+ Extension="$(echo "$i" | awk -F "." '{print $NF}')"
+ BandW="$(echo "$i" | sed -e "s|.$Extension||g")"
+ if [ "$Overwrite" = "False" ]; then
+  convert "./$i" -recolor '.2 .5 .3
+.2 .5 .3
+.2 .5 .3'"$Destination/$BandW"-BW."$Extension"
+ convert "./$i" -auto-gamma "$Destination/$BandW"-BW."$Extension"
+ else
+  convert "./$i" -recolor '.2 .5 .3
+.2 .5 .3
+.2 .5 .3'"$Destination/$i"
+ convert "./$i" -auto-gamma "$Destination/$i"
+ fi
+done
+
+sleep 5
+
+TailPID=$(pgrep -f "tail -f /usr/bin/blackwhite-image-ca")
+
+kill $TailPID
+
+notify-send -u normal -i image-x-generic -t 25000 "
+$BWCOMPLETE"
+
+exit

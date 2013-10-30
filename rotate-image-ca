@@ -1,0 +1,70 @@
+#!/bin/bash
+# Licensed under the GNU General Public License Version 2
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+####################################################################################################
+## Authored by Anthony Nordquist of the SalineOS project. http://www.salineos.com/  salinelinux@gmail.com 
+## Copyright 2011,2012 Anthony Nordquist 
+
+## Load translations
+
+LanguageLess="$(echo "$LANG" | awk -F '.' '{print $1}')"
+
+if [ -f /etc/thunar-actions-images/Translations/$LanguageLess ]; then
+ . /etc/thunar-actions-images/Translations/$LanguageLess
+else
+ . /etc/custom-actions/Translations/en_US
+fi
+
+## Set arrays for yad options
+Title=( "--title=Resize Image(s)" )
+WindowIcon=( "--window-icon=image-x-generic" )
+Icon=( "--image=image-x-generic" )
+
+Rotation=$(yad "${Title[@]}" "${WindowIcon[@]}" --height=225 --list --no-headers --column="$SELECTONE" --text="$ROTATETEXT" 90 180 270)
+
+ret="$?"
+
+Rotation=$(echo "$Rotation" | awk -F '|' '{print $1}')
+
+if [ "$ret" = "1" ]; then
+ exit 0
+elif [ "$ret" = "252" ]; then
+ exit 0
+elif [ "$Rotation" = "" ]; then
+ yad "${Title[@]}" --window-icon="error" --image="error" --width="350" --wrap --text="$NODEGREES\n" --button=$"gtk-quit:1"
+ exit 0
+fi
+
+progressbar () {
+tail -f /usr/bin/rotate-image-ca |  yad "${Title[@]}" "${WindowIcon[@]}" "${Icon[@]}" --width="350" --no-buttons --progress --pulsate --auto-close --text="$@"
+}
+
+progressbar "$ROTATEIMAGES $Rotation degrees $NOW\n" &
+
+for i in "$@"; do
+ convert "./$i" -rotate $Rotation "./$i"
+done
+
+sleep 5
+
+TailPID=$(pgrep -f "tail -f /usr/bin/rotate-image-ca")
+
+kill $TailPID
+
+notify-send -u normal -i image-x-generic -t 25000 "
+$ROTATECOMPLETE"
+
+exit

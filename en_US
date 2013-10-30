@@ -1,0 +1,73 @@
+export CONVERTCA="Select the format to convert to"
+
+export NOFORMAT="No image format selected"
+
+export CONVERSIONCOMPLETE="Convert Image(s) Complete"
+
+export CONVERTFILE="Please select the folder to save converted files to"
+
+export NODESTINATION="No destination folder was selected."
+
+export NOW="now"
+
+export COPYING="Copying"
+
+export TO="to"
+
+export CONVERTINGIMAGES="Converting image(s) to"
+
+export COMPLETED="completed"
+
+export SELECTONE="Select One"
+
+export NOPERCENT="No percentage selected"
+
+export PRESIZE="Resizing image(s) to"
+
+export RESIZECOMPLETE="Resize Image(s) Complete"
+
+export RESIZEFILE="Please select the folder to save resized files to"
+
+export BWFILE="Please select the folder to save the black and white images to"
+
+export BWPROGRESS="Converting Image(s) to Black and White"
+
+export BWCOMPLETE="Image Conversion Complete"
+
+export CROPFILE="Please select the folder to save cropped image(s) to"
+
+export CROPPROGRESS="Cropping Image(s) Now"
+
+export CROPCOMPLETE="Cropping Image(s) Completed"
+
+export CROPAPPEND="Destination folder is same as the current directory. Would you like to overwrite existing files, or append -Cropped to the end of the file names. Warning, if you overwrite the existing files you will be unable to recover the originals."
+
+export BWAPPEND="Destination folder is same as the current directory. Would you like to overwrite existing files, or append -BW to the end of the file names. Warning, if you overwrite the existing files you will be unable to recover the originals."
+
+export OVERWRITEFILES="Overwrite Files"
+
+export APPENDBUTTON="Append"
+
+export APPENDOVERWRITE="Destination folder is same as the current directory. Would you like to overwrite existing files, or append -RESIZED to the end of the file names. Warning, if you overwrite the existing files you will be unable to recover the originals."
+
+export ROTATETEXT="Select the desired number of degrees\nto rotate."
+
+export NODEGREES="No rotation amount selected"
+
+export ROTATEIMAGES="Rotating image(s)"
+
+export ROTATECOMPLETE="Rotate Image(s) Complete"
+
+export SELECTSCALE="Select the size to scale image(s) to."
+
+export NORESOLUTION="No resolution selected."
+
+export PLEASEENTER="Please enter the desired resolution to scale to."
+
+export SCALING="Scaling image(s)"
+
+export SCALECOMPLETE="Scale Image(s) Complete"
+
+export SCALEFILE="Please select where to save the scaled images to."
+
+export AORO="Destination folder is same as the current directory. Would you like to overwrite existing files, or append the resolution to the end of the file names. Warning, if you overwrite the existing files you will be unable to recover the originals."

@@ -1,0 +1,88 @@
+#!/bin/bash
+# Licensed under the GNU General Public License Version 2
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+####################################################################################################
+## Authored by Anthony Nordquist of the SalineOS project. https://github.com/SalineOS  salinelinux@gmail.com 
+## Copyright 2011,2012,2013 Anthony Nordquist 
+
+## Load translations
+
+LanguageLess="$(echo "$LANG" | awk -F '.' '{print $1}')"
+
+if [ -f /etc/thunar-actions-images/Translations/$LanguageLess ]; then
+ . /etc/thunar-actions-images/Translations/$LanguageLess
+else
+ . /etc/custom-actions/Translations/en_US
+fi
+
+## Set arrays for yad options
+WindowIcon=( "--window-icon=image-x-generic" )
+Icon=( "--image=image-x-generic" )
+Title=( "--title=File Format Conversion" )
+
+ConvertArray=("jpg" "gif" "jpeg" "png" "tiff" "dpx" "xhtml" "bmp" "pdf")
+
+ConvertTo=$(yad "${Title[@]}" "${WindowIcon[@]}" --height=285 --width=300 --no-headers --list --column="Select One" --text="$CONVERTCA" "${ConvertArray[@]}")
+
+ret="$?"
+
+ConvertTo=$(echo "$ConvertTo" | awk -F '|' '{print $1}')
+
+if [ "$ret" = "1" ]; then
+ exit
+elif [ "$ret" = "252" ]; then
+ exit
+elif [ "$ConvertTo" = "" ]; then
+ yad "${Title[@]}" --image="error" --window-icon="error" --width="350" --wrap --text="$NOFORMAT\n" --button=$"gtk-quit:1"
+ exit 0
+fi
+
+## Allow saving files to a different folder
+
+Destination=$(yad "${Title[@]}" "${WindowIcon[@]}" --file-selection --height="450" --directory --text-align="center" --text="$CONVERTFILE\n" --button=$"gtk-quit:3" --button=$"gtk-ok:2")
+
+ret="$?"
+
+if [ "$ret" = "252" ]; then
+ exit
+elif [ "$ret" = "3" ]; then
+ exit
+elif [ "$Destination" = "" ]; then
+ yad "${Title[@]}" --image="error" --window-icon="error" --text="$NODESTINATION\n" --button=$"gtk-quit:1"
+fi
+
+progressbar () {
+tail -f /usr/bin/convert-image-ca |  yad "${Title[@]}" "${WindowIcon[@]}" "${Icon[@]}" --width="350" --wrap --no-buttons --progress --pulsate --auto-close --text="$@"
+}
+
+progressbar "$CONVERTINGIMAGES $ConvertTo $NOW\n" &
+
+for i in "$@"; do
+ Extension="$(echo "$i" | awk -F "." '{print $NF}')"
+ Converted="$(echo "$i" | sed -e "s|.$Extension||g")"
+ convert "./$i" "$Destination/$Converted.$ConvertTo"
+done
+
+sleep 5
+
+TailPID=$(pgrep -f "tail -f /usr/bin/convert-image-ca")
+
+kill $TailPID
+
+notify-send -u normal -i image-x-generic -t 25000 "
+$CONVERSIONCOMPLETE"
+
+exit
