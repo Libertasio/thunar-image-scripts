@@ -22,12 +22,11 @@
 
 LanguageLess="$(echo "$LANG" | awk -F '.' '{print $1}')"
 
-if [ -f /etc/thunar-actions-images/Translations/$LanguageLess ]; then
- . /etc/thunar-actions-images/Translations/$LanguageLess
+if [ -f /etc/thunar-image-scripts/Translations/$LanguageLess ]; then
+ . /etc/thunar-image-scripts/Translations/$LanguageLess
 else
- . /etc/custom-actions/Translations/en_US
+ . /etc/thunar-image-scripts/Translations/en_US
 fi
-
 
 ## Set arrays for yad options
 Title=( "--title=Resize Image(s)" )
