@@ -57,6 +57,7 @@ echo "$Destination"
 
 if [ "$CurrentDirectory" = "$Destination" ]; then
  yad --image="emblem-important" --window-icon="emblem-important" "${Title[@]}" --wrap --width="275" --text="$BWAPPEND" --button=$"gtk-cancel:7" --button=$"$OVERWRITEFILES:3" --button=$"$APPENDBUTTON:5"
+
  ret="$?"
 
 if [ "$ret" = "252" ]; then
